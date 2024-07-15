@@ -5,17 +5,19 @@ using UnityEngine.SceneManagement;
 
 public class Movement : MonoBehaviour
 {
-    public Rigidbody2D rb; //Переменная, хранящая в себе физику персонажа
-    public SpriteRenderer sr; //Переменная, хранящая в себе информацию об спрайте игрока
+    public Rigidbody2D rb; 
+    public SpriteRenderer sr; 
+    public Animator anim;
     
     public static Vector3 checkpoint;
-    void Start() //Метод вызывается при загрузке сцены
+    void Start()
     {
-        rb = GetComponent<Rigidbody2D>(); //Объявление переменной rb, через поиск на объекте нужного компонента
-        sr = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>(); 
+        sr = GetComponentInChildren<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
 
-    void Update() //Метод вызывается каждый кадр
+    void Update()
     {
         Walk();
         Jump();
@@ -31,6 +33,7 @@ public class Movement : MonoBehaviour
     {
         movevector.x = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(movevector.x * speed, rb.velocity.y);
+        anim.SetFloat("moveX", Mathf.Abs(movevector.x));
     }
 
     void Jump()
@@ -45,11 +48,12 @@ public class Movement : MonoBehaviour
     {
         if (movevector.x > 0)
         {
-            sr.flipX = false;
+            //sr.flipX = false;
+            transform.localScale = new Vector3(-2, 2, 1);
         }
         else if (movevector.x < 0)
         {
-            sr.flipX = true;
+            transform.localScale = new Vector3(2, 2, 1);
         }
     }
 
@@ -60,6 +64,7 @@ public class Movement : MonoBehaviour
     void CheckingGround() //Проверка на нахождение на земле, для избежания бесконечных прыжков
     {
         onGround = Physics2D.OverlapCircle(GroundChecker.position, checkRadius, Ground);
+        anim.SetBool("OnGround", onGround);
     }
     void OnCollisionEnter2D(Collision2D other) //При касании смертельной ловушки идёт вызов метода, перезагружающего уровень
     {
